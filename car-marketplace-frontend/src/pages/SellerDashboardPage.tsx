@@ -8,8 +8,6 @@ import {
   CardMedia,
   Button,
   Chip,
-  Tabs,
-  Tab,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -46,28 +44,6 @@ import { formatCurrency, formatDate } from '../utils/helpers';
 import { validateCarForm } from '../utils/validation';
 import type { Car } from '../types';
 import type { ValidationError } from '../utils/validation';
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
-  return (
-    <div
-      role='tabpanel'
-      hidden={value !== index}
-      id={`dashboard-tabpanel-${index}`}
-      aria-labelledby={`dashboard-tab-${index}`}
-      {...other}
-    >
-      {value === index && <Box sx={{ py: 3 }}>{children}</Box>}
-    </div>
-  );
-}
 
 // Constants for form options
 const AVAILABLE_FEATURES = [
@@ -163,7 +139,6 @@ const mockListings: Car[] = [
 const SellerDashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const [activeTab, setActiveTab] = useState(0);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedListing, setSelectedListing] = useState<Car | null>(null);
@@ -192,10 +167,6 @@ const SellerDashboardPage: React.FC = () => {
     features: [] as string[],
     images: [] as File[],
   });
-
-  const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-  };
 
   const handleMenuClick = (
     event: React.MouseEvent<HTMLElement>,
@@ -506,88 +477,63 @@ const SellerDashboardPage: React.FC = () => {
         </Card>
       </Box>
 
-      {/* Tabs */}
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-        <Tabs value={activeTab} onChange={handleTabChange}>
-          <Tab label='Bài đăng của tôi' />
-          <Tab label='Thống kê' />
-        </Tabs>
-      </Box>
-
-      {/* Listings Tab */}
-      <TabPanel value={activeTab} index={0}>
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-          {mockListings.map((listing) => (
-            <Card key={listing.id} sx={{ width: 350, mb: 2 }}>
-              <CardMedia
-                component='img'
-                height='200'
-                image={listing.images[0]}
-                alt={listing.title}
-              />
-              <CardContent>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    mb: 1,
-                  }}
+      {/* Listings */}
+      <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+        {mockListings.map((listing) => (
+          <Card key={listing.id} sx={{ width: 350, mb: 2 }}>
+            <CardMedia
+              component='img'
+              height='200'
+              image={listing.images[0]}
+              alt={listing.title}
+            />
+            <CardContent>
+              <Box
+                sx={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  mb: 1,
+                }}
+              >
+                <Typography variant='h6' component='h3' noWrap sx={{ flex: 1 }}>
+                  {listing.title}
+                </Typography>
+                <IconButton
+                  onClick={(e) => handleMenuClick(e, listing)}
+                  size='small'
                 >
-                  <Typography
-                    variant='h6'
-                    component='h3'
-                    noWrap
-                    sx={{ flex: 1 }}
-                  >
-                    {listing.title}
-                  </Typography>
-                  <IconButton
-                    onClick={(e) => handleMenuClick(e, listing)}
-                    size='small'
-                  >
-                    <MoreVert />
-                  </IconButton>
-                </Box>
+                  <MoreVert />
+                </IconButton>
+              </Box>
 
-                <Typography variant='h6' color='primary' gutterBottom>
-                  {formatCurrency(listing.price)}
-                </Typography>
+              <Typography variant='h6' color='primary' gutterBottom>
+                {formatCurrency(listing.price)}
+              </Typography>
 
-                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                  <Chip
-                    label={getStatusText(listing.status)}
-                    color={getStatusColor(listing.status)}
-                    size='small'
-                  />
-                  <Chip
-                    label={`${listing.favorites || 0} yêu thích`}
-                    variant='outlined'
-                    size='small'
-                  />
-                </Box>
+              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                <Chip
+                  label={getStatusText(listing.status)}
+                  color={getStatusColor(listing.status)}
+                  size='small'
+                />
+                <Chip
+                  label={`${listing.favorites || 0} yêu thích`}
+                  variant='outlined'
+                  size='small'
+                />
+              </Box>
 
-                <Typography variant='body2' color='text.secondary' gutterBottom>
-                  Đăng: {formatDate(listing.createdAt)}
-                </Typography>
+              <Typography variant='body2' color='text.secondary' gutterBottom>
+                Đăng: {formatDate(listing.createdAt)}
+              </Typography>
 
-                <Typography variant='body2' color='text.secondary'>
-                  {listing.location}
-                </Typography>
-              </CardContent>
-            </Card>
-          ))}
-        </Box>
-      </TabPanel>
-
-      {/* Statistics Tab */}
-      <TabPanel value={activeTab} index={1}>
-        <Typography variant='h6' gutterBottom>
-          Thống kê chi tiết
-        </Typography>
-        <Typography variant='body2' color='text.secondary'>
-          Tính năng thống kê chi tiết sẽ được phát triển thêm...
-        </Typography>
-      </TabPanel>
+              <Typography variant='body2' color='text.secondary'>
+                {listing.location}
+              </Typography>
+            </CardContent>
+          </Card>
+        ))}
+      </Box>
 
       {/* Context Menu */}
       <Menu

@@ -12,8 +12,18 @@ export const formatNumber = (num: number): string => {
 };
 
 // Format date
-export const formatDate = (date: string | Date): string => {
+export const formatDate = (date: string | Date | null | undefined): string => {
+  if (!date) {
+    return 'Chưa có thông tin';
+  }
+
   const d = new Date(date);
+
+  // Check if date is valid
+  if (isNaN(d.getTime())) {
+    return 'Ngày không hợp lệ';
+  }
+
   return new Intl.DateTimeFormat('vi-VN', {
     year: 'numeric',
     month: 'long',
@@ -22,9 +32,21 @@ export const formatDate = (date: string | Date): string => {
 };
 
 // Format relative time (e.g., "2 days ago")
-export const formatRelativeTime = (date: string | Date): string => {
+export const formatRelativeTime = (
+  date: string | Date | null | undefined
+): string => {
+  if (!date) {
+    return 'Chưa có thông tin';
+  }
+
   const now = new Date();
   const past = new Date(date);
+
+  // Check if date is valid
+  if (isNaN(past.getTime())) {
+    return 'Ngày không hợp lệ';
+  }
+
   const diffMs = now.getTime() - past.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
@@ -39,6 +61,15 @@ export const formatRelativeTime = (date: string | Date): string => {
   } else {
     return 'Vừa xong';
   }
+};
+
+// Check if date is valid
+export const isValidDate = (
+  date: string | Date | null | undefined
+): boolean => {
+  if (!date) return false;
+  const d = new Date(date);
+  return !isNaN(d.getTime());
 };
 
 // Get file extension
