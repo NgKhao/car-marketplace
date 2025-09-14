@@ -8,12 +8,23 @@ import {
   Menu,
   MenuItem,
   IconButton,
+  Avatar,
+  Divider,
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
-import { AccountCircle, DirectionsCar } from '@mui/icons-material';
+import {
+  AccountCircle,
+  DirectionsCar,
+  Person,
+  ExitToApp,
+  Favorite,
+  Report,
+} from '@mui/icons-material';
+import { useAuthStore } from '../../store/authStore';
 
 const Header: React.FC = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated, logout } = useAuthStore();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleMenu = (event: React.MouseEvent<HTMLElement>) => {
@@ -22,6 +33,12 @@ const Header: React.FC = () => {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    logout();
+    handleClose();
+    navigate('/');
   };
 
   return (
@@ -34,64 +51,169 @@ const Header: React.FC = () => {
           </Link>
         </Typography>
 
-        <Box sx={{ display: 'flex', gap: 2 }}>
+        <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
           <Button color='inherit' component={Link} to='/cars'>
             Xe đang bán
           </Button>
-          <Button color='inherit' component={Link} to='/sell'>
-            Đăng bán
-          </Button>
+          {isAuthenticated && (
+            <Button color='inherit' component={Link} to='/sell'>
+              Đăng bán
+            </Button>
+          )}
 
-          <IconButton
-            size='large'
-            aria-label='account of current user'
-            aria-controls='menu-appbar'
-            aria-haspopup='true'
-            onClick={handleMenu}
-            color='inherit'
-          >
-            <AccountCircle />
-          </IconButton>
-          <Menu
-            id='menu-appbar'
-            anchorEl={anchorEl}
-            anchorOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            keepMounted
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right',
-            }}
-            open={Boolean(anchorEl)}
-            onClose={handleClose}
-          >
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                navigate('/login');
-              }}
-            >
-              Đăng nhập
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                navigate('/register');
-              }}
-            >
-              Đăng ký
-            </MenuItem>
-            <MenuItem
-              onClick={() => {
-                handleClose();
-                navigate('/seller-dashboard');
-              }}
-            >
-              Bảng điều khiển
-            </MenuItem>
-          </Menu>
+          {isAuthenticated ? (
+            <>
+              <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
+                <IconButton
+                  size='large'
+                  aria-label='account of current user'
+                  aria-controls='menu-appbar'
+                  aria-haspopup='true'
+                  onClick={handleMenu}
+                  color='inherit'
+                  sx={{ p: 0 }}
+                >
+                  {user?.avatar ? (
+                    <Avatar
+                      src={user.avatar}
+                      alt={user.name}
+                      sx={{ width: 32, height: 32 }}
+                    />
+                  ) : (
+                    <Avatar
+                      sx={{ width: 32, height: 32, bgcolor: 'secondary.main' }}
+                    >
+                      {user?.name?.charAt(0).toUpperCase()}
+                    </Avatar>
+                  )}
+                </IconButton>
+              </Box>
+              <Menu
+                id='menu-appbar'
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+                sx={{ mt: 1 }}
+              >
+                <MenuItem disabled>
+                  <Box>
+                    <Typography variant='subtitle2'>{user?.name}</Typography>
+                    <Typography variant='caption' color='text.secondary'>
+                      {user?.email}
+                    </Typography>
+                  </Box>
+                </MenuItem>
+                <Divider />
+                <MenuItem
+                  onClick={() => {
+                    handleClose();
+                    navigate('/profile');
+                  }}
+                >
+                  <Person sx={{ mr: 1 }} fontSize='small' />
+                  Thông tin cá nhân
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleClose();
+                    navigate('/favorites');
+                  }}
+                >
+                  <Favorite sx={{ mr: 1 }} fontSize='small' />
+                  Yêu thích
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleClose();
+                    navigate('/reports');
+                  }}
+                >
+                  <Report sx={{ mr: 1 }} fontSize='small' />
+                  Báo cáo
+                </MenuItem>
+                {user?.role === 'seller' && (
+                  <MenuItem
+                    onClick={() => {
+                      handleClose();
+                      navigate('/seller-dashboard');
+                    }}
+                  >
+                    Bảng điều khiển
+                  </MenuItem>
+                )}
+                {user?.role === 'admin' && (
+                  <MenuItem
+                    onClick={() => {
+                      handleClose();
+                      navigate('/admin');
+                    }}
+                  >
+                    Quản trị
+                  </MenuItem>
+                )}
+                <Divider />
+                <MenuItem onClick={handleLogout}>
+                  <ExitToApp sx={{ mr: 1 }} fontSize='small' />
+                  Đăng xuất
+                </MenuItem>
+              </Menu>
+            </>
+          ) : (
+            <>
+              <IconButton
+                size='large'
+                aria-label='account menu'
+                aria-controls='menu-appbar'
+                aria-haspopup='true'
+                onClick={handleMenu}
+                color='inherit'
+              >
+                <AccountCircle />
+              </IconButton>
+              <Menu
+                id='menu-appbar'
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'right',
+                }}
+                keepMounted
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'right',
+                }}
+                open={Boolean(anchorEl)}
+                onClose={handleClose}
+                sx={{ mt: 1 }}
+              >
+                <MenuItem
+                  onClick={() => {
+                    handleClose();
+                    navigate('/login');
+                  }}
+                >
+                  Đăng nhập
+                </MenuItem>
+                <MenuItem
+                  onClick={() => {
+                    handleClose();
+                    navigate('/register');
+                  }}
+                >
+                  Đăng ký
+                </MenuItem>
+              </Menu>
+            </>
+          )}
         </Box>
       </Toolbar>
     </AppBar>

@@ -61,14 +61,64 @@ export interface Car {
   images: string[];
   sellerId: string;
   sellerName: string;
-  sellerPhone: string;
-  sellerType: 'individual' | 'dealer';
+  sellerPhone?: string;
+  sellerType?: 'individual' | 'dealer';
   location: string;
-  status: 'active' | 'pending' | 'sold' | 'rejected';
-  features: string[];
+  status: 'active' | 'pending' | 'sold' | 'rejected' | 'approved';
+  features?: string[];
   condition: 'new' | 'used';
+  views?: number;
+  favorites?: number;
+  isFavorite?: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+// Favorites Types
+export interface Favorite {
+  id: string;
+  userId: string;
+  carId: string;
+  car?: Car;
+  createdAt: string;
+}
+
+// Rating and Review Types
+export interface Rating {
+  id: string;
+  userId: string;
+  sellerId: string;
+  rating: number; // 1-5 stars
+  review?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface SellerRating {
+  sellerId: string;
+  averageRating: number;
+  totalRatings: number;
+  ratings: Rating[];
+}
+
+// Report Types
+export interface Report {
+  id: string;
+  reporterId: string; // User who created the report
+  reportedId: string; // User being reported (seller or buyer)
+  reportedType: 'seller' | 'buyer';
+  reason: string;
+  description: string;
+  status: 'pending' | 'investigating' | 'resolved' | 'dismissed';
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ReportReason {
+  id: string;
+  label: string;
+  description: string;
+  category: 'fraud' | 'behavior' | 'content' | 'other';
 }
 
 export interface CreateCarRequest {
